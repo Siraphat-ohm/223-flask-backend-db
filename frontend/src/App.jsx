@@ -97,7 +97,6 @@ function App() {
       console.error("Error deleting todo:", error);
     }
   }
-
   return (
     <>
       <h1>Todo List</h1>
@@ -105,66 +104,50 @@ function App() {
         {todoList.map((todo) => (
           <li key={todo.id}>
             <span className={todo.done ? "done" : ""}>{todo.title}</span>
-            <button
-              onClick={() => {
-                toggleDone(todo.id);
-              }}
-            >
-              Toggle
-            </button>
-            <button
-              onClick={() => {
-                deleteTodo(todo.id);
-              }}
-            >
-              ❌
-            </button>
+            <button onClick={() => toggleDone(todo.id)}>Toggle</button>
+            <button onClick={() => deleteTodo(todo.id)}>❌</button>
+
+            {/* 1. Only show the list if there are comments */}
             {todo.comments && todo.comments.length > 0 && (
               <>
+                <br />
                 <b>Comments:</b>
                 <ul>
                   {todo.comments.map((comment) => (
                     <li key={comment.id}>{comment.message}</li>
                   ))}
                 </ul>
-                <div className="new-comment-forms">
-                  <input
-                    type="text"
-                    value={newComments[todo.id] || ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setNewComments({ ...newComments, [todo.id]: value });
-                    }}
-                  />
-
-                  <button
-                    onClick={() => {
-                      addNewComment(todo.id);
-                    }}
-                  >
-                    Add Comment
-                  </button>
-                </div>
               </>
             )}
+
+            {/* 2. ALWAYS show the "Add Comment" form for every todo */}
+            <div className="new-comment-forms">
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                value={newComments[todo.id] || ""}
+                onChange={(e) => {
+                  setNewComments({ ...newComments, [todo.id]: e.target.value });
+                }}
+              />
+              <button onClick={() => addNewComment(todo.id)}>
+                Add Comment
+              </button>
+            </div>
+            <hr />
           </li>
         ))}
       </ul>
-      New:{" "}
-      <input
-        type="text"
-        value={newTitle}
-        onChange={(e) => {
-          setNewTitle(e.target.value);
-        }}
-      />
-      <button
-        onClick={() => {
-          addNewTodo();
-        }}
-      >
-        Add
-      </button>
+
+      <div className="add-todo-section">
+        <h3>New Task:</h3>
+        <input
+          type="text"
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+        />
+        <button onClick={addNewTodo}>Add Todo</button>
+      </div>
     </>
   );
 }

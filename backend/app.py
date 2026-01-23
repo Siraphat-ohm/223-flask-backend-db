@@ -1,65 +1,32 @@
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey, Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+from models import Comment, TodoItem, db
 
 app = Flask(__name__)
 CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'
 
-class Base(DeclarativeBase):
-  pass
+db.init_app(app)         
+migrate = Migrate(app, db)
 
-db = SQLAlchemy(app, model_class=Base)
-migrate = Migrate(app, db)  
-
-class TodoItem(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    title: Mapped[str] = mapped_column(String(100))
-    done: Mapped[bool] = mapped_column(default=False)
-
-    comments: Mapped[list["Comment"]] = relationship(back_populates="todo")
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "done": self.done,
-            "comments": [
-                comment.to_dict() for comment in self.comments
-            ]
-        }
-
-class Comment(db.Model):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    message: Mapped[str] = mapped_column(String(250))
-    todo_id: Mapped[int] = mapped_column(ForeignKey('todo_item.id'))
-
-    todo: Mapped["TodoItem"] = relationship(back_populates="comments")
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "message": self.message,
-            "todo_id": self.todo_id
-        }
 
 with app.app_context():
     db.create_all()
 
-INITIAL_TODOS = [
-    TodoItem(title='Learn Flask'),
-    TodoItem(title='Build a Flask App'),
-    TodoItem(title='test data'),
-]
-
-with app.app_context():
-    if TodoItem.query.count() == 0:
-         for item in INITIAL_TODOS:
-             db.session.add(item)
-         db.session.commit()
+# INITIAL_TODOS = [
+#     TodoItem(title='Learn Flask'),
+#     TodoItem(title='Build a Flask App'),
+#     TodoItem(title='test data'),
+# ]
+#
+# with app.app_context():
+#     if TodoItem.query.count() == 0:
+#          for item in INITIAL_TODOS:
+#              db.session.add(item)
+#          db.session.commit()
 
 todo_list = [
     { "id": 1,
