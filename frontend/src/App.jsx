@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TodoItem } from "./components/TodoItem";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
@@ -8,13 +9,12 @@ function App() {
 
   const [todoList, setTodoList] = useState([]);
   const [newTitle, setNewTitle] = useState("");
-  const [newComments, setNewComments] = useState({});
 
   useEffect(() => {
     fetchTodoList();
   }, []);
 
-  async function addNewComment(todoId) {
+  async function addNewComment(todoId, newComment) {
     try {
       const url = `${TODOLIST_API_URL}${todoId}/comments/`;
       const response = await fetch(url, {
@@ -22,10 +22,10 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: newComments[todoId] || "" }),
+        body: JSON.stringify({ message: newComment || "" }),
       });
       if (response.ok) {
-        setNewComments({ ...newComments, [todoId]: "" });
+        // setNewComments({ ...newComments, [todoId]: "" });
         await fetchTodoList();
       }
     } catch (error) {
@@ -91,6 +91,7 @@ function App() {
         method: "DELETE",
       });
       if (response.ok) {
+        console.log(id);
         setTodoList(todoList.filter((todo) => todo.id !== id));
       }
     } catch (error) {
@@ -102,40 +103,13 @@ function App() {
       <h1>Todo List</h1>
       <ul>
         {todoList.map((todo) => (
-          <li key={todo.id}>
-            <span className={todo.done ? "done" : ""}>{todo.title}</span>
-            <button onClick={() => toggleDone(todo.id)}>Toggle</button>
-            <button onClick={() => deleteTodo(todo.id)}>❌</button>
-
-            {/* 1. Only show the list if there are comments */}
-            {todo.comments && todo.comments.length > 0 && (
-              <>
-                <br />
-                <b>Comments:</b>
-                <ul>
-                  {todo.comments.map((comment) => (
-                    <li key={comment.id}>{comment.message}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-            {/* 2. ALWAYS show the "Add Comment" form for every todo */}
-            <div className="new-comment-forms">
-              <input
-                type="text"
-                placeholder="Add a comment..."
-                value={newComments[todo.id] || ""}
-                onChange={(e) => {
-                  setNewComments({ ...newComments, [todo.id]: e.target.value });
-                }}
-              />
-              <button onClick={() => addNewComment(todo.id)}>
-                Add Comment
-              </button>
-            </div>
-            <hr />
-          </li>
+          <TodoItem 
+            key={todo.id}
+            todo={todo}
+            toggleDone={toggleDone}
+            deleteTodo={deleteTodo}
+            addNewComment={addNewComment}
+          />
         ))}
       </ul>
 
