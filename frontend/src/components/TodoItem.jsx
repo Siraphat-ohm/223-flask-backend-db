@@ -1,7 +1,7 @@
 import "../App.css";
 import { useState } from "react";
 
-export const TodoItem = ({todo, toggleDone, deleteTodo, addNewComment}) => {
+function TodoItem({todo, toggleDone, deleteTodo, addNewComment}) {
   const [newComment, setNewComment] = useState("");   
   
   return (
@@ -44,3 +44,5 @@ export const TodoItem = ({todo, toggleDone, deleteTodo, addNewComment}) => {
           </li>
   )
 }
+
+export default TodoItem;
