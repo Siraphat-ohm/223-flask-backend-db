@@ -126,5 +126,6 @@ def login():
     user = User.query.filter_by(username=data['username']).first()
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid username or password'}), 401
-
-    return jsonify({'message': 'Login successful'})
+    
+    access_token = create_access_token(identity=user.username)
+    return jsonify(access_token=access_token)
