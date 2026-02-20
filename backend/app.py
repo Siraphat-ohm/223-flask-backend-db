@@ -3,12 +3,17 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_migrate import Migrate
 import click
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import JWTManager
+
 
 from models import db, TodoItem, Comment, User
 
 app = Flask(__name__)
 CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todos.db'
+app.config['JWT_SECRET_KEY'] = 'fdsjkfjioi2rjshr2345hrsh043j5oij5545'
+jwt = JWTManager(app)
 
 db.init_app(app)         
 migrate = Migrate(app, db)
@@ -39,6 +44,7 @@ todo_list = [
 ]
 
 @app.route('/api/todos/', methods=['GET'])
+@jwt_required()
 def get_todos():
     todos = TodoItem.query.all()
     return jsonify([todo.to_dict() for todo in todos])
