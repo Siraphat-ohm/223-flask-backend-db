@@ -1,0 +1,6 @@
+.env
+
+/venv
+/instance
+__pycache__
+practicum68-489108-e17688c54523.json
